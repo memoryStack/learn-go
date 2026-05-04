@@ -1,0 +1,12 @@
+{
+    "go.formatTool": "goimports",
+    "go.useLanguageServer": true,
+    "[go]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "goimports"
+    },
+    "[go.mod]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "golang.go"
+    }
+}
