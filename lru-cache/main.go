@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"lru-cache/dell"
+	"lru-cache/cache"
 )
 
 func main() {
@@ -26,12 +26,10 @@ func main() {
 
 	fmt.Println("Size:", size)
 	
-	dq := dell.New(size)
-
-	hashMap := make(map[string]*dell.Node)
+	c := cache.New(size)
 
 	for {
-		fmt.Println("Enter a command out of get, put:")
+		fmt.Println("Enter a command out of get, put, print:")
 		command, _ := reader.ReadString('\n')
 		command = strings.TrimSpace(command)
 		if (command != "get" && command != "put" && command != "print") {
@@ -43,18 +41,17 @@ func main() {
 			fmt.Println("Enter the key:")
 			key, _ := reader.ReadString('\n')
 			key = strings.TrimSpace(key)
-			node, exists := hashMap[key]
-			if (exists) {
-				dq.MoveNodeToLast(node)
-				fmt.Println("Here is the value:", node.Value)
-			} else {
-				fmt.Println("Key not found")
+			value, err := c.Get(key)
+			if (err != nil) {
+				fmt.Println("Error getting value:", err)
+				continue
 			}
+			fmt.Println("Here is the value:", value)
 			continue
 		}
 
 		if (command == "print") {
-			dq.Print()
+			c.Print()
 			continue
 		}
 
@@ -65,27 +62,11 @@ func main() {
 			valueInt, _ := strconv.Atoi(strings.TrimSpace(value))
 			key = strings.TrimSpace(key)
 
-			node, exists := hashMap[key]
-			if (exists) {
-				// refresh it's value
-				node.Value = valueInt
-				dq.MoveNodeToLast(node)
-				fmt.Println("Value refreshed successfully")
-				continue
-			}
-			// know if delete happened or not
-			// if yes then which key was deleted and delete that from here as well
-			if (dq.Length >= size) {
-				// need to know which key will be deleted here
-				firstNode, _ := dq.GetFirstNode()
-				delete(hashMap, firstNode.Key)
-			}
-			node, err := dq.Add(key, valueInt)
+			err := c.Put(key, valueInt)
 			if (err != nil) {
 				fmt.Println("Error adding value:", err)
 				continue
 			}
-			hashMap[key] = node
 			fmt.Println("Value added successfully")
 		}
 
