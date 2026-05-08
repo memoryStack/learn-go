@@ -27,15 +27,13 @@ type Dell struct {
 	head *Node
 	tail *Node
 	Length int
-	capacity int
 }
 
-func New(capacity int) *Dell {
+func New() *Dell {
 	return &Dell {
 		head: nil,
 		tail: nil,
 		Length: 0,
-		capacity: capacity,
 	}
 }
 
@@ -49,11 +47,6 @@ func evacuate(d *Dell) {
 }
 
 func (d *Dell) Add(key string, value int) (*Node, error) {
-	if (d.Length >= d.capacity) {
-		evacuate(d)
-		return d.Add(key, value)
-	}
-
 	node := &Node{Key: key, Value: value}
 
 	if (d.Length == 0) {

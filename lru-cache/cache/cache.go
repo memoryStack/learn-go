@@ -6,15 +6,15 @@ import (
 )
 
 type Cache struct {
-	Size int
+	capacity int
 	dell *dell.Dell
 	hashMap map[string]*dell.Node
 }
 
 func New(size int) *Cache {
 	return &Cache {
-		dell: dell.New(size),
-		Size: size,
+		dell: dell.New(),
+		capacity: size,
 		hashMap: make(map[string]*dell.Node),
 	}
 }
@@ -36,13 +36,17 @@ func (c *Cache) updateValue(key string, value int) error {
 	return nil
 }
 
+/*
+take out the evacuate logic from the dell package
+*/
+
 func (c *Cache) Put(key string, value int) error {
 	node, exists := c.hashMap[key]
 	if (exists) {
 		return c.updateValue(key, value)
 	}
 
-	if (c.dell.Length < c.Size) {
+	if (c.dell.Length < c.capacity) {
 		node, err := c.dell.Add(key, value)
 		if (err != nil) {
 			return err
