@@ -14,19 +14,21 @@ func main() {
 	// before that, let's test this
 	// linked list first
 	
-
 	reader := bufio.NewReader(os.Stdin)
 
 	var size int
 
-	
 	fmt.Println("Enter the size of the cache:")
 	sizeStr, _ := reader.ReadString('\n')
 	size, _ = strconv.Atoi (strings.TrimSpace(sizeStr))
 
 	fmt.Println("Size:", size)
-	
-	c := cache.New(size)
+
+	c, err := cache.New(size, cache.LRU)
+	if err != nil {
+		fmt.Println("Error creating cache:", err)
+		return
+	}
 
 	for {
 		fmt.Println("Enter a command out of get, put, print:")
