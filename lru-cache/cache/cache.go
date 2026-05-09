@@ -23,7 +23,7 @@ func (c *Cache) Get(key string) (int, error) {
 	node, exists := c.hashMap[key]
 	if (exists) {
 		c.dell.MoveNodeToLast(node)
-		return node.Value, nil
+		return node.GetValue(), nil
 	}
 	return 0, errors.New("key not found")
 }
@@ -31,14 +31,10 @@ func (c *Cache) Get(key string) (int, error) {
 // the key will always exist here
 func (c *Cache) updateValue(key string, value int) error {
 	node, _ := c.hashMap[key]
-	node.Value = value
+	node.UpdateValue(value)
 	c.dell.MoveNodeToLast(node)
 	return nil
 }
-
-/*
-take out the evacuate logic from the dell package
-*/
 
 func (c *Cache) Put(key string, value int) error {
 	node, exists := c.hashMap[key]
@@ -46,7 +42,7 @@ func (c *Cache) Put(key string, value int) error {
 		return c.updateValue(key, value)
 	}
 
-	if (c.dell.Length < c.capacity) {
+	if (c.dell.GetLength() < c.capacity) {
 		node, err := c.dell.Add(key, value)
 		if (err != nil) {
 			return err
@@ -56,7 +52,8 @@ func (c *Cache) Put(key string, value int) error {
 	}
 
 	firstNode, _ := c.dell.GetFirstNode()
-	delete(c.hashMap, firstNode.Key)
+	delete(c.hashMap, firstNode.GetKey())
+	c.dell.Delete(firstNode)
 	node, err := c.dell.Add(key, value) // this logic doesn't belong in the dell package
 	if (err != nil) {
 		return err

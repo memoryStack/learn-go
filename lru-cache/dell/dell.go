@@ -17,8 +17,8 @@ import (
 )
 
 type Node struct {
-	Key string
-	Value int
+	key string
+	value int
 	prev *Node
 	next *Node
 }
@@ -26,40 +26,28 @@ type Node struct {
 type Dell struct {
 	head *Node
 	tail *Node
-	Length int
+	length int
 }
 
 func New() *Dell {
 	return &Dell {
 		head: nil,
 		tail: nil,
-		Length: 0,
+		length: 0,
 	}
-}
-
-func evacuate(d *Dell) {
-	// evacuate the first node
-	firstNode := d.head
-	d.head = firstNode.next
-	firstNode.next.prev = nil
-	freeNode(firstNode)
-	d.Length--
 }
 
 func (d *Dell) Add(key string, value int) (*Node, error) {
-	node := &Node{Key: key, Value: value}
+	node := &Node{key: key, value: value}
 
-	if (d.Length == 0) {
+	if (d.length == 0) {
 		d.head = node
 		d.tail = node
-		d.Length++
+		d.length++
 		return node, nil
 	}
 
-	node.prev = d.tail
-	d.tail.next = node
-	d.tail = node	
-	d.Length++
+	d.AddNodeToLast(node)
 	return node, nil
 }
 
@@ -71,7 +59,7 @@ func freeNode(node *Node) {
 }
 
 func (d *Dell) Delete(node *Node) (bool, error) {
-	if (node == nil || d.Length == 0) {
+	if (node == nil || d.length == 0) {
 		return false, errors.New("invalid delete")
 	}
 	
@@ -88,16 +76,34 @@ func (d *Dell) Delete(node *Node) (bool, error) {
 	}
 
 	freeNode(node)
-	d.Length--
+	d.length--
 	return true, nil
 }
 
+// no one is using it externally
 func (d *Dell) AddNodeToLast(node *Node) (bool, error) {
 	node.prev = d.tail
 	d.tail.next = node
 	d.tail = node
-	d.Length++
+	d.length++
 	return true, nil
+}
+
+func (n *Node) UpdateValue(value int) (bool, error) {
+	n.value = value
+	return true, nil
+}
+
+func (n *Node) GetValue() int {
+	return n.value
+}
+
+func (n *Node) GetKey() string {
+	return n.key
+}
+
+func (d *Dell) GetLength() int {
+	return d.length
 }
 
 func (d *Dell) MoveNodeToLast(node *Node) (bool, error) {
@@ -110,7 +116,7 @@ func (d *Dell) MoveNodeToLast(node *Node) (bool, error) {
 }
 
 func (d *Dell) GetFirstNode() (*Node, error) {
-	if (d.Length == 0) {
+	if (d.length == 0) {
 		return nil, errors.New("list is empty")
 	}
 
@@ -118,7 +124,7 @@ func (d *Dell) GetFirstNode() (*Node, error) {
 }
 
 func (d *Dell) GetLastNode() (*Node, error) {
-	if (d.Length == 0) {
+	if (d.length == 0) {
 		return nil, errors.New("list is empty")
 	}
 
@@ -129,7 +135,7 @@ func (d *Dell) Print() {
 	node := d.head
 	fmt.Println("Printing list:")
 	for node != nil {
-		fmt.Printf("key=%q value=%d\n", node.Key, node.Value)
+		fmt.Printf("key=%q value=%d\n", node.key, node.value)
 		node = node.next
 	}
 	fmt.Println("End of list")
